@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "section": "Before vs. After",
+    "filename": "infographic_before_after.jpg",
+    "title": "From Siloed Land Registries to One Change, Everywhere",
+    "prompt": "A high-impact 16:9 widescreen technological framework infographic on a clean white and light-gray blueprint grid background illustrating FROM SILOED LAND REGISTRIES TO ONE CHANGE, EVERYWHERE: ASSAM LAND RECORD SYNCHRONIZATION. The top header features bold dark navy typography BHUMISYNC ASSAM: ONE CHANGE, EVERYWHERE with subtitle Eliminating Multi-Portal Delays Across Assam Land Administration. The visual is split into two clear panels: LEFT PANEL (Warm Amber/Red border, labeled TODAY: SILOED & MANUAL): Shows a citizen with paper folders walking between four disconnected portals (Panjeeyan Deeds, Dharitree Jamabandi, Bhunaksha Map, e-Khajana Tax) with broken red dashed arrows, a 3-6 Weeks Delay clock badge, and a Dual-Sale Risk warning icon. RIGHT PANEL (Emerald Green/Royal Blue border, labeled WITH BHUMISYNC: REAL-TIME SYNC): Shows one digital Circle Officer approval stamp at the center beaming four glowing green/cyan arrows simultaneously to all four portals in < 5 Seconds with 100% Parity Verified badges. Clean 2D flat vector aesthetic, dark navy, royal blue, cyan, emerald green, and amber accents, ultra-sharp typography."
+  },
+  {
+    "id": 2,
+    "section": "Citizen Storyboard",
+    "filename": "infographic_citizen_storyboard.jpg",
+    "title": "4-Step Citizen Land Mutation & Partition Journey",
+    "prompt": "A structured 16:9 widescreen technological workflow infographic on a clean white blueprint grid background illustrating THE 4-STEP CITIZEN LAND MUTATION & PARTITION JOURNEY IN ASSAM. The header displays bold dark navy typography CITIZEN JOURNEY: ONE APPROVED CHANGE ACROSS FOUR PORTALS. The layout presents four connected horizontal step cards with crisp vector icons: 1) STEP 1 (Royal Blue): DEED REGISTERED AT PANJEEYAN - Citizen & Sub-Registrar digital desk registering sale of 1,200 sqm from DAG-104 (2,000 sqm); 2) STEP 2 (Indigo): AUTOMATED AREA & RULE CHECK - Digital shield verifying 1,200 + 800 = 2,000 sqm Area Conservation invariant; 3) STEP 3 (Emerald Green): INSTANT 4-PORTAL PROPAGATION - Bhunaksha cadastral plot splitting into DAG-104/A and DAG-104/B while Dharitree Jamabandi and e-Khajana tax update simultaneously; 4) STEP 4 (Cyan): VERIFIED DIGITAL RECEIPT - Citizen holding a tablet with a green 4/4 Parity Verified checkmark and tamper-proof audit hash. Clean 2D flat vector aesthetic, crisp borders, dark navy, royal blue, emerald green, and cyan corporate palette."
+  },
+  {
+    "id": 3,
+    "section": "System Architecture",
+    "filename": "infographic_architecture.jpg",
+    "title": "BhumiSync Assam Event-Driven Smart Traffic Controller Architecture",
+    "prompt": "A master 16:9 widescreen software & governance architecture infographic on a clean white blueprint grid background illustrating BHUMISYNC ASSAM: EVENT-DRIVEN SMART TRAFFIC CONTROLLER ARCHITECTURE. The header features bold dark navy typography NON-INVASIVE EVENT-DRIVEN SYNC ARCHITECTURE with subtitle Transactional Outbox, Spatial-Textual Guardrails & Hash-Chained Audit Ledger. The diagram flows left-to-right in four clean tiers: 1) SOURCE TRIGGERS (Circle Officer, Sub-Registrar, Mission Basundhara); 2) SMART TRAFFIC CONTROLLER CORE (Canonical ULPIN/Dag-Patta Envelope, Area Conservation Invariant Engine, Idempotency Guard, and Transactional Outbox); 3) PARALLEL ADAPTER BUS (Four color-coded connectors updating Panjeeyan, Dharitree, Bhunaksha PostGIS, and e-Khajana); 4) GOVERNANCE & SAFETY (Quarantine Queue for Human-in-the-Loop CO Review + Hash-Chained Immutable Audit Ledger prevHash -> entryHash). Clean 2D flat vector aesthetic, royal blue, cyan, emerald green, and amber diagnostic badges, crisp technical typography."
+  },
+  {
+    "id": 4,
+    "section": "Safety Net & Resilience",
+    "filename": "infographic_safety_net.jpg",
+    "title": "Rural Outage Resilience & Human-in-the-Loop Quarantine Safety Net",
+    "prompt": "A high-contrast 16:9 widescreen resilience & compliance infographic on a clean white blueprint grid background illustrating BUILT-IN SAFETY NET: ZERO DATA LOSS & HUMAN-IN-THE-LOOP QUARANTINE. The header displays bold dark navy typography FAIL-SAFE GOVERNANCE & CONFLICT QUARANTINE. The visual presents two side-by-side diagnostic panels: LEFT PANEL (Amber/Blue): OFFLINE NODE RECOVERY (TRANSACTIONAL OUTBOX) - Illustrates a disconnected Bhunaksha server icon (OFFLINE), events safely buffered in a durable Outbox Queue (DEGRADED_RETRY), and automatic green reconciliation arrows when connectivity returns; RIGHT PANEL (Red/Navy): ERROR & COURT-STAY QUARANTINE (HITL) - Illustrates a mismatched Dag split (1200 + 950 != 2000 sqm) or Frozen Litigation Dag intercepted by a digital shield and routed to the Circle Officer Admin Console for Approve Override or Reject sign-off. Clean 2D flat vector aesthetic, crisp icons, dark navy, amber, emerald, and crimson accents."
+  },
+  {
+    "id": 5,
+    "section": "Pilot Impact Scorecard",
+    "filename": "infographic_pilot_scorecard.jpg",
+    "title": "NESFIC-D-49 Governance Impact & Pilot Validation Scorecard",
+    "prompt": "An executive 16:9 widescreen impact & validation scorecard infographic on a clean white blueprint grid background illustrating NESFIC-D-49 GOVERNANCE IMPACT & PILOT VALIDATION SCORECARD. The header features bold dark navy typography MEASURABLE GOVERNANCE IMPACT: PILOT READINESS SCORECARD with subtitle Flugelsoft Labs | Revenue & Disaster Management Department, Assam. The layout presents four bold metric comparison cards: 1) SYNC LATENCY: 3-6 Weeks Manual -> < 5 Seconds Automated (Royal Blue); 2) DATA INTEGRITY: Frequent Map-Record Drift -> 0% Silent Corruption via Area Invariants (Emerald Green); 3) OFFLINE RESILIENCE: Failed Rural Updates -> 100% Outbox Auto-Recovery (Cyan); 4) AUDITABILITY: Scattered Logs -> Cryptographic Hash-Chained Ledger & 5/5 Automated Tests Passed (Amber/Gold). Clean 2D flat vector aesthetic, ultra-sharp typography, institutional presentation quality."
+  }
+]
