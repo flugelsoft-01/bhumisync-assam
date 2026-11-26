@@ -26,6 +26,7 @@ export default function App() {
   const [, setTick] = useState(0);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'audit' | 'admin' | 'architecture'>('dashboard');
   const [showTutorial, setShowTutorial] = useState<boolean>(false);
+  const [showGlossary, setShowGlossary] = useState<boolean>(false);
   const [adminRole, setAdminRole] = useState<AdminRole>('CIRCLE_OFFICER');
   const [sweepNotice, setSweepNotice] = useState<string>('');
   const [eventType, setEventType] = useState<EventType>('MUTATION_APPROVED');
@@ -124,6 +125,9 @@ export default function App() {
           </span>
           <button className="tutorial-btn" onClick={() => setShowTutorial(true)}>
             <BookOpen size={14} /> Tutorial
+          </button>
+          <button className="tutorial-btn" onClick={() => setShowGlossary(true)}>
+            <Layers size={14} /> Terms &amp; Glossary
           </button>
         </div>
       </header>
@@ -550,7 +554,23 @@ export default function App() {
             &copy; {new Date().getFullYear()} <strong>Flugelsoft Labs</strong>. All rights reserved.
           </span>
           <span>
-            Lead Applicant: <strong>Kalyanjit Hatibaruah</strong> · Live Prototype:{' '}
+            Lead Applicant: <strong>Kalyanjit Hatibaruah</strong> ·{' '}
+            <button
+              onClick={() => setShowGlossary(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                color: '#1d4ed8',
+                fontWeight: 600,
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                fontSize: 'inherit',
+              }}
+            >
+              Technical &amp; Land Terms Glossary
+            </button>{' '}
+            · Live Prototype:{' '}
             <a
               href="https://bhumisync-assam.pages.dev/"
               target="_blank"
@@ -647,6 +667,60 @@ export default function App() {
                   <strong>Non-Invasive Adapter Architecture:</strong> Designed to wrap legacy NIC/state portals via
                   REST/CDC connectors without rewriting core databases.
                 </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showGlossary && (
+        <div
+          className="modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Technical and Land Governance Terms Glossary"
+          onClick={() => setShowGlossary(false)}
+        >
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Layers size={20} color="#1e3a8a" />
+                <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Technical &amp; Assam Land Governance Terms</h2>
+              </div>
+              <button
+                className="btn btn-secondary"
+                style={{ padding: '5px 9px' }}
+                onClick={() => setShowGlossary(false)}
+                aria-label="Close glossary"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="modal-section">
+              <h3>Assam Land Administration &amp; Revenue Terms</h3>
+              <ul>
+                <li><strong>Dharitree (ILRMS):</strong> Assam&apos;s Integrated Land Records Management System storing textual Records of Rights (Jamabandi &amp; Chitha).</li>
+                <li><strong>Bhunaksha:</strong> Cadastral GIS mapping system maintaining spatial Dag polygons and village boundaries.</li>
+                <li><strong>Panjeeyan (e-Registration):</strong> Sub-Registrar portal for property deed registration and encumbrance records.</li>
+                <li><strong>e-Khajana:</strong> Online land revenue and cess demand/collection ledger linked to Pattadars.</li>
+                <li><strong>Mission Basundhara:</strong> Flagship Assam citizen service framework for mutations, partitions, and land reclassification.</li>
+                <li><strong>Dag &amp; Patta:</strong> <em>Dag</em> is a unique survey parcel number within a village; <em>Patta</em> (Myadi, Eksona, Nisf-Khiraj) is the landholding title record.</li>
+                <li><strong>Jamabandi &amp; Chitha:</strong> <em>Jamabandi</em> is the Record of Rights (RoR) indexed by Patta; <em>Chitha</em> is the field-level register indexed by Dag.</li>
+                <li><strong>Bigha-Katha-Lessa:</strong> Traditional Assam land area units (<code>1 Bigha = 5 Katha = 100 Lessa ≈ 1,337.8 m²</code>).</li>
+                <li><strong>ULPIN (Bhu-Aadhaar):</strong> 14-digit Unique Land Parcel Identification Number linking spatial and textual records.</li>
+              </ul>
+            </div>
+
+            <div className="modal-section" style={{ marginBottom: 0 }}>
+              <h3>Technical &amp; Distributed Systems Terms</h3>
+              <ul>
+                <li><strong>Transactional Outbox:</strong> Guarantees approved changes are durably queued and reconciled even when a downstream portal is temporarily offline.</li>
+                <li><strong>Idempotency Key:</strong> Unique event token ensuring duplicate or retried webhooks never apply the same mutation twice.</li>
+                <li><strong>Area Conservation Invariant:</strong> Guardrail verifying <code>Σ child Dag areas == parent Dag area</code> before propagating any partition.</li>
+                <li><strong>Hash-Chained Audit Ledger:</strong> Cryptographically linked log (<code>prevHash → entryHash</code>) providing tamper-evident traceability.</li>
+                <li><strong>Quarantine &amp; HITL (Human-in-the-Loop):</strong> Isolation queue where conflicting or Court-Stay frozen events await explicit Circle Officer sign-off.</li>
+                <li><strong>RBAC (Role-Based Access Control):</strong> Permission tiering separating Circle Officer, NIC System Admin, and Read-Only Auditor actions.</li>
               </ul>
             </div>
           </div>
