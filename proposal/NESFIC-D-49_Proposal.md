@@ -1,7 +1,9 @@
 # NESFIC 2026 Proposal — Problem Statement `NESFIC-D-49`
 **Title:** *One Change, Everywhere: Automatic Synchronisation Across Land Record Systems in Assam*  
 **Track:** Government Track — Revenue & Disaster Management Department, Government of Assam  
-**Proposed Solution Name:** **BhumiSync Assam**
+**Proposed Solution Name:** **BhumiSync Assam**  
+**Organization:** Flugelsoft Labs | **Lead Applicant:** Kalyanjit Hatibaruah  
+**Live Prototype URL:** https://bhumisync-assam.pages.dev/
 
 ---
 

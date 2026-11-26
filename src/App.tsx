@@ -352,6 +352,31 @@ export default function App() {
 [5] Hash-Chained Immutable Audit Ledger + Real-Time Parity Monitor`}</div>
         </div>
       )}
+
+      <footer className="app-footer">
+        <div className="footer-disclaimer">
+          <strong>Disclaimer:</strong> This application is a functional MVP prototype and simulation built for{' '}
+          <strong>NESFIC 2026 Problem Statement NESFIC-D-49</strong>. All parcel records, Dag/Patta identifiers,
+          and portal adapters shown here use synthetic demonstration data and are not connected to live
+          Government of Assam production databases (Dharitree, Bhunaksha, Panjeeyan, or e-Khajana).
+        </div>
+        <div className="footer-meta">
+          <span>
+            &copy; {new Date().getFullYear()} <strong>Flugelsoft Labs</strong>. All rights reserved.
+          </span>
+          <span>
+            Lead Applicant: <strong>Kalyanjit Hatibaruah</strong> · Live Prototype:{' '}
+            <a
+              href="https://bhumisync-assam.pages.dev/"
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: '#1d4ed8', fontWeight: 600 }}
+            >
+              bhumisync-assam.pages.dev
+            </a>
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }
