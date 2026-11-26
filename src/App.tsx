@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Activity,
   AlertTriangle,
+  BookOpen,
   CheckCircle2,
   Database,
   Download,
@@ -14,6 +15,7 @@ import {
   Unlock,
   Wifi,
   WifiOff,
+  X,
 } from 'lucide-react';
 import { BhumiSyncEngine } from './engine/syncEngine';
 import { AdminRole, EventType, ParcelRecord, SystemId } from './engine/types';
@@ -23,6 +25,7 @@ const engineInstance = new BhumiSyncEngine();
 export default function App() {
   const [, setTick] = useState(0);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'audit' | 'admin' | 'architecture'>('dashboard');
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
   const [adminRole, setAdminRole] = useState<AdminRole>('CIRCLE_OFFICER');
   const [sweepNotice, setSweepNotice] = useState<string>('');
   const [eventType, setEventType] = useState<EventType>('MUTATION_APPROVED');
@@ -119,6 +122,9 @@ export default function App() {
           <span className="badge badge-dark">
             Quarantined: {engineInstance.quarantine.length}
           </span>
+          <button className="tutorial-btn" onClick={() => setShowTutorial(true)}>
+            <BookOpen size={14} /> Tutorial
+          </button>
         </div>
       </header>
 
@@ -556,6 +562,96 @@ export default function App() {
           </span>
         </div>
       </footer>
+
+      {showTutorial && (
+        <div
+          className="modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="BhumiSync Assam Tutorial"
+          onClick={() => setShowTutorial(false)}
+        >
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <BookOpen size={20} color="#1e3a8a" />
+                <h2 style={{ fontSize: '1.1rem', margin: 0 }}>BhumiSync Assam — Interactive Tutorial &amp; Engineering Guide</h2>
+              </div>
+              <button
+                className="btn btn-secondary"
+                style={{ padding: '5px 9px' }}
+                onClick={() => setShowTutorial(false)}
+                aria-label="Close tutorial"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="modal-section">
+              <h3>1. What This Application Is About (NESFIC-D-49)</h3>
+              <p>
+                In Assam, land records are split across <strong>Panjeeyan</strong> (Sub-Registrar deeds),{' '}
+                <strong>Dharitree</strong> (Jamabandi &amp; Chitha), <strong>Bhunaksha</strong> (cadastral maps), and{' '}
+                <strong>e-Khajana</strong> (revenue demand). Currently, an approved mutation or partition in one portal
+                does not automatically propagate to the others, causing delays, spatial-textual drift, and dual-sale fraud.
+                <strong> BhumiSync Assam</strong> demonstrates <em>&ldquo;One Change, Everywhere&rdquo;</em>: a single approved
+                change validates domain invariants and synchronizes all four systems in real time.
+              </p>
+            </div>
+
+            <div className="modal-section">
+              <h3>2. How to Use This Prototype</h3>
+              <ol>
+                <li>
+                  <strong>Trigger an Approved Change:</strong> On <em>Live Sync Simulator</em>, choose a Sale Mutation,
+                  Dag Partition, or Reclassification and click <strong>Approve &amp; Auto-Propagate</strong>. Watch all
+                  4 portal tables and the live Bhunaksha SVG map update together.
+                </li>
+                <li>
+                  <strong>Test Offline Resilience:</strong> Click <strong>ONLINE</strong> on any portal (e.g., Bhunaksha)
+                  to take it <strong>OFFLINE</strong>, dispatch a change (queued in the Transactional Outbox), then bring it
+                  back <strong>ONLINE</strong> to watch automatic reconciliation.
+                </li>
+                <li>
+                  <strong>Test Spatial-Textual Guardrails:</strong> Choose <em>Dag Partition</em> on <code>DAG-104</code> (2000 sqm)
+                  and enter mismatched child areas (e.g., <code>1200 + 950</code>). The engine blocks propagation and
+                  routes it to <strong>Quarantine</strong>.
+                </li>
+                <li>
+                  <strong>Use the Admin Console:</strong> Open <em>Admin Console</em> to switch RBAC roles, freeze/unfreeze
+                  Dags (Court-Stay), approve/reject quarantined events as Circle Officer, run a Reconciliation Sweep, or
+                  export the hash-chained audit JSON.
+                </li>
+              </ol>
+            </div>
+
+            <div className="modal-section" style={{ marginBottom: 0 }}>
+              <h3>3. Technical Engineering Involved</h3>
+              <ul>
+                <li>
+                  <strong>Transactional Outbox &amp; Idempotent Event Bus:</strong> Every event carries a deterministic{' '}
+                  <code>idempotencyKey</code>; duplicate deliveries are ignored and offline nodes receive queued events
+                  automatically upon recovery.
+                </li>
+                <li>
+                  <strong>Invariant &amp; Conflict Guardrail Engine:</strong> Enforces mathematical{' '}
+                  <em>Area Conservation</em> (sum of child Dag areas == parent Dag area), Court-Stay freeze locks, and
+                  monotonic version clocks before committing.
+                </li>
+                <li>
+                  <strong>Hash-Chained Immutable Audit Ledger:</strong> Every propagation, quarantine, freeze, and
+                  Circle Officer override is cryptographically linked (<code>prevHash → entryHash</code>) for
+                  tamper-evident governance.
+                </li>
+                <li>
+                  <strong>Non-Invasive Adapter Architecture:</strong> Designed to wrap legacy NIC/state portals via
+                  REST/CDC connectors without rewriting core databases.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
