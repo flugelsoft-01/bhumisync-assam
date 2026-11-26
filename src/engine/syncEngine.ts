@@ -23,6 +23,7 @@ export class BhumiSyncEngine {
   public systems: Record<SystemId, SystemState>;
   public auditLog: AuditEntry[] = [];
   public quarantine: QuarantineItem[] = [];
+  public frozenDags = new Set<string>();
   private processedKeys = new Set<string>();
   private outboxQueue: LandEvent[] = [];
 
@@ -32,6 +33,36 @@ export class BhumiSyncEngine {
 
   public setSystemStatus(systemId: SystemId, status: SystemState['status']): void {
     this.systems[systemId].status = status;
+  }
+
+  public toggleFreezeDag(dagNo: string, actor = 'CO-Dispur-Circle'): boolean {
+    const prevHash = this.auditLog.length > 0 ? this.auditLog[0].entryHash : '0x00000000';
+    let isNowFrozen: boolean;
+    if (this.frozenDags.has(dagNo)) {
+      this.frozenDags.delete(dagNo);
+      isNowFrozen = false;
+    } else {
+      this.frozenDags.add(dagNo);
+      isNowFrozen = true;
+    }
+    this.auditLog.unshift({
+      seq: this.auditLog.length + 1,
+      eventId: `LOCK-${Date.now().toString().slice(-4)}`,
+      idempotencyKey: `LOCK-${dagNo}-${this.auditLog.length + 1}`,
+      type: 'MUTATION_APPROVED',
+      targetDag: dagNo,
+      status: isNowFrozen ? 'QUARANTINED' : 'SYNCED',
+      propagatedTo: [],
+      failedOrPending: [],
+      reason: isNowFrozen
+        ? `Court-Stay / Admin Freeze enabled on ${dagNo} by ${actor}`
+        : `Court-Stay / Admin Freeze lifted on ${dagNo} by ${actor}`,
+      prevHash,
+      entryHash: simpleHash(prevHash + dagNo + String(isNowFrozen)),
+      timestamp: new Date().toISOString(),
+      durationMs: 2,
+    });
+    return isNowFrozen;
   }
 
   public getOutboxDepth(): number {
@@ -66,7 +97,16 @@ export class BhumiSyncEngine {
       return entry;
     }
 
-    // 2. Semantic & Spatial-Textual Invariant Validation
+    // 2. Court-Stay / Freeze & Semantic Invariant Validation
+    if (this.frozenDags.has(event.targetDag)) {
+      return this.quarantineEvent(
+        event,
+        `Court-Stay / Admin Freeze active on ${event.targetDag}`,
+        prevHash,
+        start
+      );
+    }
+
     const sourceParcel = this.systems[event.sourceSystem].parcels[event.targetDag];
     if (!sourceParcel) {
       return this.quarantineEvent(event, `Target parcel ${event.targetDag} not found`, prevHash, start);
@@ -266,6 +306,73 @@ export class BhumiSyncEngine {
     };
     this.auditLog.unshift(entry);
     return entry;
+  }
+
+  public resolveQuarantine(
+    quarantineId: string,
+    decision: 'APPROVE_OVERRIDE' | 'REJECT',
+    officer = 'CO-Dispur-Circle',
+    note = ''
+  ): boolean {
+    const item = this.quarantine.find((q) => q.id === quarantineId);
+    if (!item || item.resolved) return false;
+
+    item.resolved = true;
+    item.resolution = decision;
+    item.resolvedBy = officer;
+    item.resolutionNote = note || (decision === 'APPROVE_OVERRIDE' ? 'Approved by Circle Officer' : 'Rejected by Circle Officer');
+
+    const prevHash = this.auditLog.length > 0 ? this.auditLog[0].entryHash : '0x00000000';
+
+    if (decision === 'APPROVE_OVERRIDE') {
+      const propagatedTo: SystemId[] = [];
+      for (const sysId of ALL_SYSTEMS) {
+        if (this.systems[sysId].status !== 'OFFLINE') {
+          this.applyToSystem(this.systems[sysId], item.event);
+          propagatedTo.push(sysId);
+        }
+      }
+      this.processedKeys.add(item.event.idempotencyKey);
+      this.auditLog.unshift({
+        seq: this.auditLog.length + 1,
+        eventId: `${item.event.eventId}-OVERRIDE`,
+        idempotencyKey: `${item.event.idempotencyKey}-OVERRIDE`,
+        type: item.event.type,
+        targetDag: item.event.targetDag,
+        status: 'SYNCED',
+        propagatedTo,
+        failedOrPending: [],
+        reason: `CO Override Approved (${item.id}) by ${officer}: ${item.resolutionNote}`,
+        prevHash,
+        entryHash: simpleHash(prevHash + item.id + 'OVERRIDE'),
+        timestamp: new Date().toISOString(),
+        durationMs: 12,
+      });
+    } else {
+      this.auditLog.unshift({
+        seq: this.auditLog.length + 1,
+        eventId: `${item.event.eventId}-REJECT`,
+        idempotencyKey: `${item.event.idempotencyKey}-REJECT`,
+        type: item.event.type,
+        targetDag: item.event.targetDag,
+        status: 'QUARANTINED',
+        propagatedTo: [],
+        failedOrPending: [],
+        reason: `Quarantined Event Rejected (${item.id}) by ${officer}: ${item.resolutionNote}`,
+        prevHash,
+        entryHash: simpleHash(prevHash + item.id + 'REJECT'),
+        timestamp: new Date().toISOString(),
+        durationMs: 5,
+      });
+    }
+
+    return true;
+  }
+
+  public runReconciliationSweep(): { flushed: number; parity: { inSync: boolean; mismatches: string[] } } {
+    const flushed = this.flushOutbox();
+    const parity = this.checkGlobalParity();
+    return { flushed, parity };
   }
 
   public checkGlobalParity(): { inSync: boolean; mismatches: string[] } {

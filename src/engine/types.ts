@@ -88,4 +88,9 @@ export interface QuarantineItem {
   reason: string;
   detectedAt: string;
   resolved: boolean;
+  resolution?: 'APPROVE_OVERRIDE' | 'REJECT';
+  resolvedBy?: string;
+  resolutionNote?: string;
 }
+
+export type AdminRole = 'CIRCLE_OFFICER' | 'NIC_ADMIN' | 'AUDITOR';

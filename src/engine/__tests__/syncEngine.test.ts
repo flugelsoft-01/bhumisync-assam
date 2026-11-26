@@ -97,4 +97,29 @@ describe('BhumiSyncEngine — NESFIC-D-49 Invariants & Sync Guarantees', () => {
     expect(engine.checkGlobalParity().inSync).toBe(true);
     expect(engine.systems.bhunaksha.parcels['DAG-106'].ownerName).toBe('Neha Choudhury');
   });
+
+  it('blocks mutations on a frozen Dag and supports Circle Officer quarantine resolution', () => {
+    const engine = new BhumiSyncEngine();
+    engine.toggleFreezeDag('DAG-104', 'CIRCLE_OFFICER');
+
+    const blocked = engine.dispatchEvent({
+      eventId: 'EVT-105',
+      idempotencyKey: 'KEY-105',
+      type: 'MUTATION_APPROVED',
+      sourceSystem: 'panjeeyan',
+      targetDag: 'DAG-104',
+      timestamp: '2026-11-26T08:20:00Z',
+      approvedBy: 'SubRegistrar-Dispur',
+      payload: { newOwner: 'Unauthorized Buyer' },
+    });
+
+    expect(blocked.status).toBe('QUARANTINED');
+    expect(engine.quarantine).toHaveLength(1);
+    expect(engine.systems.dharitree.parcels['DAG-104'].ownerName).toBe('Ananya Bora');
+
+    const resolved = engine.resolveQuarantine(engine.quarantine[0].id, 'REJECT', 'CIRCLE_OFFICER', 'Court stay active');
+    expect(resolved).toBe(true);
+    expect(engine.quarantine[0].resolved).toBe(true);
+    expect(engine.quarantine[0].resolution).toBe('REJECT');
+  });
 });

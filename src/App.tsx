@@ -4,21 +4,27 @@ import {
   AlertTriangle,
   CheckCircle2,
   Database,
+  Download,
   GitBranch,
   Layers,
+  Lock,
   RefreshCw,
+  ShieldAlert,
   ShieldCheck,
+  Unlock,
   Wifi,
   WifiOff,
 } from 'lucide-react';
 import { BhumiSyncEngine } from './engine/syncEngine';
-import { EventType, ParcelRecord, SystemId } from './engine/types';
+import { AdminRole, EventType, ParcelRecord, SystemId } from './engine/types';
 
 const engineInstance = new BhumiSyncEngine();
 
 export default function App() {
   const [, setTick] = useState(0);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'architecture' | 'audit'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'audit' | 'admin' | 'architecture'>('dashboard');
+  const [adminRole, setAdminRole] = useState<AdminRole>('CIRCLE_OFFICER');
+  const [sweepNotice, setSweepNotice] = useState<string>('');
   const [eventType, setEventType] = useState<EventType>('MUTATION_APPROVED');
   const [targetDag, setTargetDag] = useState<string>('DAG-104');
   const [newOwner, setNewOwner] = useState<string>('Pranjal Sharma');
@@ -79,6 +85,19 @@ export default function App() {
   };
 
   const bhunakshaParcels = Object.values(engineInstance.systems.bhunaksha.parcels);
+  const unresolvedQuarantine = engineInstance.quarantine.filter((q) => !q.resolved);
+
+  const handleExportAudit = () => {
+    const blob = new Blob([JSON.stringify(engineInstance.auditLog, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bhumisync-audit-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="app-shell">
@@ -115,6 +134,12 @@ export default function App() {
           onClick={() => setActiveTab('audit')}
         >
           <ShieldCheck size={16} /> Hash-Chained Audit &amp; Quarantine ({engineInstance.auditLog.length})
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
+          onClick={() => setActiveTab('admin')}
+        >
+          <ShieldAlert size={16} /> Admin Console {unresolvedQuarantine.length > 0 ? `(${unresolvedQuarantine.length})` : ''}
         </button>
         <button
           className={`tab-btn ${activeTab === 'architecture' ? 'active' : ''}`}
@@ -324,6 +349,160 @@ export default function App() {
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {activeTab === 'admin' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div className="card" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            <div>
+              <h2 style={{ marginBottom: 4 }}>
+                <ShieldAlert size={18} /> Revenue &amp; NIC Admin Governance Console
+              </h2>
+              <p style={{ fontSize: '0.82rem', color: '#64748b' }}>
+                District: <strong>Kamrup (Metro)</strong> · Circle: <strong>Dispur</strong> · Mouza: <strong>Beltola</strong> · Village: <strong>Hatigaon</strong>
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#475569' }}>Active RBAC Role:</label>
+              <select
+                value={adminRole}
+                onChange={(e) => setAdminRole(e.target.value as AdminRole)}
+                style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+              >
+                <option value="CIRCLE_OFFICER">Circle Officer (HITL &amp; Freeze)</option>
+                <option value="NIC_ADMIN">NIC System Admin (Outbox &amp; Sweep)</option>
+                <option value="AUDITOR">Read-Only Auditor (Export Only)</option>
+              </select>
+              <button className="btn btn-secondary" onClick={handleExportAudit}>
+                <Download size={14} /> Export Audit JSON
+              </button>
+            </div>
+          </div>
+
+          <div className="systems-grid">
+            <div className="card">
+              <h2>Circle Officer Quarantine Desk ({unresolvedQuarantine.length} Pending)</h2>
+              {engineInstance.quarantine.length === 0 ? (
+                <p style={{ fontSize: '0.84rem', color: '#64748b' }}>
+                  No quarantined events. Trigger a mismatched Dag partition or mutate a frozen Dag to test HITL review.
+                </p>
+              ) : (
+                engineInstance.quarantine.map((q) => (
+                  <div
+                    key={q.id}
+                    className={`audit-item ${q.resolved ? '' : 'quarantined'}`}
+                    style={{ marginBottom: 10 }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+                      <span>
+                        {q.id} · {q.event.type} ({q.event.targetDag})
+                      </span>
+                      <span className="mono">{q.resolved ? q.resolution : 'PENDING REVIEW'}</span>
+                    </div>
+                    <div style={{ marginTop: 4, fontSize: '0.8rem', color: '#991b1b' }}>{q.reason}</div>
+                    {!q.resolved ? (
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <button
+                          className="btn btn-secondary"
+                          disabled={adminRole === 'AUDITOR'}
+                          style={{ padding: '5px 10px', fontSize: '0.76rem' }}
+                          onClick={() => {
+                            engineInstance.resolveQuarantine(q.id, 'APPROVE_OVERRIDE', adminRole);
+                            rerender();
+                          }}
+                        >
+                          Approve Override
+                        </button>
+                        <button
+                          className="btn btn-danger"
+                          disabled={adminRole === 'AUDITOR'}
+                          style={{ padding: '5px 10px', fontSize: '0.76rem' }}
+                          onClick={() => {
+                            engineInstance.resolveQuarantine(q.id, 'REJECT', adminRole);
+                            rerender();
+                          }}
+                        >
+                          Reject Event
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mono" style={{ marginTop: 4, color: '#475569' }}>
+                        Resolved by {q.resolvedBy}: {q.resolutionNote}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="card">
+              <h2>Court-Stay / Dag Freeze Locks &amp; Parity Sweep</h2>
+              <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 10 }}>
+                Frozen Dags block automatic mutation propagation and route attempts to Quarantine.
+              </p>
+              <table className="parcel-table" style={{ marginBottom: 14 }}>
+                <thead>
+                  <tr>
+                    <th>Dag</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {availableDags.map((dag) => {
+                    const isFrozen = engineInstance.frozenDags.has(dag);
+                    return (
+                      <tr key={dag}>
+                        <td className="mono">{dag}</td>
+                        <td>{engineInstance.systems.dharitree.parcels[dag].ownerName}</td>
+                        <td>
+                          <span className={`badge ${isFrozen ? 'badge-err' : 'badge-ok'}`} style={{ padding: '2px 8px', fontSize: '0.72rem' }}>
+                            {isFrozen ? 'FROZEN' : 'ACTIVE'}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-secondary"
+                            disabled={adminRole === 'AUDITOR'}
+                            style={{ padding: '4px 9px', fontSize: '0.74rem' }}
+                            onClick={() => {
+                              engineInstance.toggleFreezeDag(dag, adminRole);
+                              rerender();
+                            }}
+                          >
+                            {isFrozen ? <Unlock size={12} /> : <Lock size={12} />}
+                            {isFrozen ? 'Unfreeze' : 'Freeze'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                <button
+                  className="btn btn-primary"
+                  style={{ width: 'auto' }}
+                  disabled={adminRole === 'AUDITOR'}
+                  onClick={() => {
+                    const res = engineInstance.runReconciliationSweep();
+                    setSweepNotice(
+                      `Sweep complete: ${res.flushed} outbox event(s) flushed · Parity: ${
+                        res.parity.inSync ? '4/4 In Sync' : `${res.parity.mismatches.length} mismatch(es)`
+                      }`
+                    );
+                    rerender();
+                  }}
+                >
+                  <RefreshCw size={14} /> Run Reconciliation Sweep
+                </button>
+                {sweepNotice && <span style={{ fontSize: '0.78rem', color: '#166534', fontWeight: 600 }}>{sweepNotice}</span>}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
