@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NESFIC-D-49 Proposal — BhumiSync Assam</title>
+  <style>
+    @page { size: A4; margin: 13mm 14mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0f172a; font-size: 9.6pt; line-height: 1.46; }
+    .cover { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #fff; padding: 20px 24px; border-radius: 10px; margin-bottom: 14px; }
+    .cover .tag { display: inline-block; background: rgba(255,255,255,0.16); padding: 3px 10px; border-radius: 999px; font-size: 7.8pt; font-weight: 700; margin-bottom: 6px; }
+    .cover h1 { font-size: 18pt; font-weight: 800; margin-bottom: 4px; }
+    .cover p { font-size: 9.2pt; color: #cbd5e1; }
+    h2 { font-size: 11.5pt; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; margin: 14px 0 8px; page-break-after: avoid; }
+    p { margin-bottom: 7px; }
+    ul, ol { padding-left: 18px; margin-bottom: 8px; }
+    li { margin-bottom: 3px; }
+    .img-frame { border: 1.5px solid #cbd5e1; border-radius: 10px; overflow: hidden; background: #ffffff; padding: 6px; margin: 8px 0 12px; page-break-inside: avoid; }
+    .img-frame img { width: 100%; height: auto; border-radius: 6px; display: block; }
+    .img-caption { font-size: 7.8pt; color: #475569; margin-top: 5px; padding: 0 4px; }
+    .diagram-box { border: 1.5px solid #cbd5e1; border-radius: 10px; background: #f8fafc; padding: 10px 12px; margin: 8px 0 12px; page-break-inside: avoid; }
+    table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 8.3pt; page-break-inside: avoid; }
+    th, td { border: 1px solid #cbd5e1; padding: 5px 7px; text-align: left; }
+    th { background: #e2e8f0; font-weight: 700; color: #1e293b; }
+    .comp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0 12px; page-break-inside: avoid; }
+    .comp-card { border-radius: 8px; padding: 10px; border: 1.5px solid; font-size: 8.3pt; }
+    .comp-bad { background: #fef2f2; border-color: #fca5a5; }
+    .comp-mid { background: #fffbeb; border-color: #fcd34d; }
+    .comp-good { background: #f0fdf4; border-color: #86efac; }
+    .page-break { page-break-before: always; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 8.2pt; }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <div class="tag">NESFIC 2026 · GOVERNMENT TRACK (REVENUE &amp; DISASTER MANAGEMENT DEPT, ASSAM) · NESFIC-D-49</div>
+    <h1>BhumiSync Assam — "One Change, Everywhere"</h1>
+    <p>Proposal Document: Automatic Synchronisation Across Land Record Systems in Assam</p>
+    <p style="margin-top:6px; font-size:8.5pt; color:#e2e8f0;">
+      <strong>Lead Applicant:</strong> Kalyanjit Hatibaruah &nbsp;|&nbsp;
+      <strong>Organization:</strong> Flugelsoft Labs &nbsp;|&nbsp;
+      <strong>Live Prototype:</strong> https://bhumisync-assam.pages.dev/
+    </p>
+  </div>
+
+  <h2>1. Problem Understanding &amp; User Workflow</h2>
+  <p>
+    Land administration in Assam relies on multiple specialized digital platforms—<strong>Dharitree (ILRMS)</strong> for textual Records of Rights (Jamabandi and Chitha), <strong>Bhunaksha</strong> for cadastral spatial maps, <strong>Panjeeyan (e-Registration)</strong> for Sub-Registrar property deeds, <strong>e-Khajana</strong> for land revenue demand/collection, and <strong>Mission Basundhara</strong> for citizen service workflows. Currently, these systems operate with asynchronous, manual, or batch-coupled handoffs. When a citizen registers a sale deed at a Sub-Registrar Office or receives Circle Officer (CO) approval for a mutation, partition, or reclassification, the update does not automatically propagate in real time across all connected databases.
+  </p>
+  <p>
+    <strong>Users &amp; Beneficiaries:</strong> Citizens &amp; Pattadars (avoiding delayed mutations and dual-sale fraud), Revenue &amp; Registration Officials (eliminating manual re-entry across portals), and State Governance &amp; Banks (trustworthy title data). <strong>Intended Outcome:</strong> Once an authorized modification is approved, it validates invariants and propagates across all connected registries within seconds.
+  </p>
+  <div class="img-frame">
+    <img src="assets/infographic_before_after.jpg" alt="Before vs After Infographic" />
+    <div class="img-caption"><strong>Fig 1:</strong> Siloed manual delays (3–6 weeks) vs. BhumiSync automated real-time synchronization (&lt; 5 seconds).</div>
+  </div>
+
+  <h2>2. Proposed Solution &amp; Key Features</h2>
+  <p>
+    <strong>BhumiSync Assam</strong> is a non-invasive, event-driven transactional synchronization middleware and control plane sitting above Assam’s existing land record systems without requiring core database rewrites:
+  </p>
+  <ul>
+    <li><strong>Canonical Land Event Envelope:</strong> Standardizes updates across District, Circle, Mouza, Village, Patta, Dag, and ULPIN, supporting Assam land units (Bigha-Katha-Lessa and sq.m).</li>
+    <li><strong>Invariant &amp; Conflict Guardrail Engine:</strong> Enforces Area Conservation (<code>Σ child Dag areas == parent Dag area</code>), Court-Stay freeze locks, and monotonic version ordering.</li>
+    <li><strong>Resilient Adapter Bus with Transactional Outbox:</strong> Guarantees idempotent delivery to Panjeeyan, Dharitree, Bhunaksha, and e-Khajana, queueing offline nodes for automatic recovery.</li>
+    <li><strong>Conflict Quarantine (HITL) &amp; Hash-Chained Audit Ledger:</strong> Routes anomalies to Circle Officer review and records every step with cryptographic <code>prevHash → entryHash</code> chaining.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <h2>3. User Journey, Wireframes, Prototype &amp; Proof of Work</h2>
+  <p>
+    An approved deed in Panjeeyan or mutation/partition in Dharitree is captured by BhumiSync’s Outbox, validated for spatial-textual invariants, and propagated simultaneously to all 4 portals. We built and deployed the interactive <strong>BhumiSync Assam Control Plane</strong> MVP at <span class="mono">https://bhumisync-assam.pages.dev/</span> with live SVG cadastral splitting, offline node recovery, and a Circle Officer Admin Console.
+  </p>
+  <div class="img-frame">
+    <img src="assets/infographic_citizen_storyboard.jpg" alt="Citizen Journey Storyboard" />
+    <div class="img-caption"><strong>Fig 2:</strong> 4-step citizen journey from Sub-Registrar deed registration to verified 4-portal parity.</div>
+  </div>
+  <div class="img-frame">
+    <img src="assets/live_dashboard.png" alt="Live MVP Screenshot" />
+    <div class="img-caption"><strong>Fig 3:</strong> Live deployed BhumiSync Assam MVP Control Plane (<code>bhumisync-assam.pages.dev</code>).</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>4. Technology &amp; Solution Architecture</h2>
+  <p>
+    Built on a decoupled, cloud-native <strong>Event-Driven Microservices &amp; CDC</strong> stack: React 18 + TypeScript + Vite Control Plane UI; Node.js/Go Sync Core; NATS JetStream / Apache Kafka with persistent DLQ; PostgreSQL/PostGIS for canonical snapshots and polygon topology validation; and an AI/ML Assamese-English transliteration entity-matching assistant (Phase 2) for legacy name reconciliation. Deployable via Docker/Kubernetes on MeghRaj (GI Cloud) or Assam State Data Centre (SDC).
+  </p>
+  <div class="img-frame">
+    <img src="assets/infographic_architecture.jpg" alt="BhumiSync Architecture" />
+    <div class="img-caption"><strong>Fig 4:</strong> 4-tier non-invasive architecture wrapping Panjeeyan, Dharitree, Bhunaksha, and e-Khajana.</div>
+  </div>
+
+  <h2>5. Development Methodology &amp; 6. Development Timeline (24-Week Roadmap)</h2>
+  <p>
+    We follow an Agile, Test-Driven methodology: (1) Discovery &amp; Schema Mapping, (2) Architecture &amp; Wireframes, (3) Interactive MVP Prototype (completed), (4) Sandbox Integration &amp; AI Entity-Matching, and (5) Security Hardening &amp; Circle Shadow Pilot. <strong>Ready for Validation at Week 20.</strong>
+  </p>
+  <div class="diagram-box">
+    <svg viewBox="0 0 720 135" style="width:100%; height:auto;">
+      <text x="10" y="16" font-size="10" font-weight="700" fill="#1e3a8a">24-WEEK DEVELOPMENT &amp; VALIDATION ROADMAP</text>
+      <rect x="10" y="28" width="120" height="34" rx="5" fill="#dbeafe" stroke="#1d4ed8"/><text x="70" y="43" text-anchor="middle" font-size="8.5" font-weight="700">Phase 1 (W1–4)</text><text x="70" y="55" text-anchor="middle" font-size="7.5">Schema Freeze</text>
+      <rect x="138" y="28" width="160" height="34" rx="5" fill="#e0e7ff" stroke="#4338ca"/><text x="218" y="43" text-anchor="middle" font-size="8.5" font-weight="700">Phase 2 (W5–10)</text><text x="218" y="55" text-anchor="middle" font-size="7.5">Outbox + Textual Sync</text>
+      <rect x="306" y="28" width="160" height="34" rx="5" fill="#dcfce7" stroke="#15803d"/><text x="386" y="43" text-anchor="middle" font-size="8.5" font-weight="700">Phase 3 (W11–16)</text><text x="386" y="55" text-anchor="middle" font-size="7.5">PostGIS + AI + Admin UI</text>
+      <rect x="474" y="28" width="115" height="34" rx="5" fill="#fef3c7" stroke="#d97706"/><text x="531" y="43" text-anchor="middle" font-size="8.5" font-weight="700">Phase 4 (W17–20)</text><text x="531" y="55" text-anchor="middle" font-size="7.5">VAPT &amp; UAT Sign-off</text>
+      <rect x="597" y="28" width="113" height="34" rx="5" fill="#fce7f3" stroke="#be185d"/><text x="653" y="43" text-anchor="middle" font-size="8.5" font-weight="700">Phase 5 (W21–24)</text><text x="653" y="55" text-anchor="middle" font-size="7.5">Circle Shadow Pilot</text>
+      <line x1="10" y1="84" x2="710" y2="84" stroke="#64748b" stroke-width="2"/>
+      <circle cx="589" cy="84" r="6" fill="#d97706"/><text x="589" y="103" text-anchor="middle" font-size="8" font-weight="700" fill="#92400e">W20: Validation Ready</text>
+      <circle cx="710" cy="84" r="6" fill="#15803d"/><text x="678" y="103" text-anchor="middle" font-size="8" font-weight="700" fill="#166534">W24: Pilot Complete</text>
+    </svg>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>7. Data &amp; Information Requirements ("One Parcel, Four Views")</h2>
+  <p>
+    Development and staging require anonymized Jamabandi/Chitha extracts, Bhunaksha GeoJSON/Shapefiles (WGS84 / UTM 46N), sample Panjeeyan deed payloads, and e-Khajana demand structures, with all PII masked. Assam area constants (<code>1 Bigha = 5 Katha = 100 Lessa = 1,337.8 m²</code>) are standardized across adapters. <em>No unconfirmed live production access is assumed;</em> current MVP runs on synthetic Assam fixtures pending Phase 1 sandbox APIs.
+  </p>
+  <div class="diagram-box">
+    <svg viewBox="0 0 720 110" style="width:100%; height:auto;">
+      <rect x="255" y="10" width="210" height="32" rx="6" fill="#1e3a8a"/><text x="360" y="30" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff">Canonical Parcel: DAG-104 / PATTA-412 / ULPIN</text>
+      <line x1="360" y1="42" x2="90" y2="64" stroke="#64748b" stroke-width="1.5"/>
+      <line x1="360" y1="42" x2="270" y2="64" stroke="#64748b" stroke-width="1.5"/>
+      <line x1="360" y1="42" x2="450" y2="64" stroke="#64748b" stroke-width="1.5"/>
+      <line x1="360" y1="42" x2="630" y2="64" stroke="#64748b" stroke-width="1.5"/>
+      <rect x="15" y="64" width="150" height="36" rx="5" fill="#fff" stroke="#1d4ed8"/><text x="90" y="80" text-anchor="middle" font-size="8.5" font-weight="700">Dharitree View</text><text x="90" y="92" text-anchor="middle" font-size="7.5">Owner, Patta Type, Shares</text>
+      <rect x="195" y="64" width="150" height="36" rx="5" fill="#fff" stroke="#15803d"/><text x="270" y="80" text-anchor="middle" font-size="8.5" font-weight="700">Bhunaksha View</text><text x="270" y="92" text-anchor="middle" font-size="7.5">Polygon Geometry &amp; Area</text>
+      <rect x="375" y="64" width="150" height="36" rx="5" fill="#fff" stroke="#7c3aed"/><text x="450" y="80" text-anchor="middle" font-size="8.5" font-weight="700">Panjeeyan View</text><text x="450" y="92" text-anchor="middle" font-size="7.5">Deed ID &amp; Encumbrance</text>
+      <rect x="555" y="64" width="150" height="36" rx="5" fill="#fff" stroke="#d97706"/><text x="630" y="80" text-anchor="middle" font-size="8.5" font-weight="700">e-Khajana View</text><text x="630" y="92" text-anchor="middle" font-size="7.5">Revenue &amp; Cess Ledger</text>
+    </svg>
+  </div>
+
+  <h2>8. Team, Manpower &amp; Expertise</h2>
+  <table>
+    <thead>
+      <tr><th>Role</th><th>Core Domain &amp; Technical Expertise</th><th>Active Phases</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Tech Lead / Distributed Architect</strong> (1 FTE)</td><td>Event-driven architecture, Kafka/NATS, Outbox &amp; consistency</td><td>Phases 1–5</td></tr>
+      <tr><td><strong>Backend &amp; Integration Engineers</strong> (2 FTEs)</td><td>TypeScript/Go, PostgreSQL, REST/SOAP/CDC legacy adapters</td><td>Phases 2–5</td></tr>
+      <tr><td><strong>GIS &amp; Spatial Specialist</strong> (1 FTE)</td><td>PostGIS, GeoJSON topology validation, Bhunaksha Dag splits</td><td>Phases 1–4</td></tr>
+      <tr><td><strong>AI/ML &amp; NLP Engineer</strong> (1 FTE)</td><td>Assamese/English entity resolution &amp; transliteration matching</td><td>Phases 3–4</td></tr>
+      <tr><td><strong>Frontend &amp; UX Engineer</strong> (1 FTE)</td><td>React, TypeScript, Circle Officer HITL &amp; map dashboards</td><td>Phases 2–5</td></tr>
+      <tr><td><strong>QA, Security &amp; Domain SME</strong> (1 FTE)</td><td>Automated testing, VAPT, Assam Revenue &amp; Basundhara workflows</td><td>Phases 1–5</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9. Testing, Validation &amp; 10. Security, Privacy &amp; Compliance</h2>
+  <p>
+    Our automated <span class="mono">vitest</span> suite passes <strong>5/5 core guarantee tests</strong> (atomic 4-portal propagation, Area Conservation quarantine, idempotent replay protection, offline Outbox recovery, and Court-Stay Dag freeze locks). Security enforces mTLS, RBAC (Circle Officer / NIC Admin / Auditor), DPDP Act 2023 data minimization, TLS 1.3 + AES-256 encryption, and tamper-evident hash-chained audit logs.
+  </p>
+  <div class="img-frame">
+    <img src="assets/infographic_safety_net.jpg" alt="Safety Net and Quarantine" />
+    <div class="img-caption"><strong>Fig 5:</strong> Offline outage recovery and Human-in-the-Loop Circle Officer quarantine guardrails.</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>11. Innovation &amp; Differentiation</h2>
+  <div class="comp-grid">
+    <div class="comp-card comp-bad">
+      <strong>Manual Multi-Portal Entry</strong><br/>
+      3–6 weeks lag, manual re-entry across offices, high risk of spatial-textual drift and dual-sale fraud.
+    </div>
+    <div class="comp-card comp-mid">
+      <strong>Nightly Batch / Cron Scripts</strong><br/>
+      24h+ delay, brittle schema coupling, silent failures on conflicts, no spatial polygon validation.
+    </div>
+    <div class="comp-card comp-good">
+      <strong>BhumiSync Assam (Ours)</strong><br/>
+      Sub-5s event-driven sync, Area Conservation guardrails, Outbox offline recovery, and hash-chained audit.
+    </div>
+  </div>
+
+  <h2>12. Resources, Risks &amp; Pilot Validation</h2>
+  <p>
+    Indicative 6-month MVP-to-Pilot budget is ~₹18–24 Lakh (manpower + MeghRaj/SDC staging VMs). Key risks—legacy API drift, rural connectivity drops, and historical data mismatches—are mitigated via the Adapter pattern, Transactional Outbox, and Quarantine HITL review. Post-development, a <strong>4-week Shadow-Mode &amp; Controlled Live Pilot</strong> in 1–2 Revenue Circles (e.g., Dispur) will benchmark turnaround reduction and 100% parity compliance.
+  </p>
+  <div class="img-frame">
+    <img src="assets/infographic_pilot_scorecard.jpg" alt="Pilot Impact Scorecard" />
+    <div class="img-caption"><strong>Fig 6:</strong> NESFIC-D-49 Governance Impact &amp; Pilot Readiness Scorecard.</div>
+  </div>
+
+  <p style="margin-top:8px; font-size:7.6pt; color:#475569; border-top:1px solid #cbd5e1; padding-top:5px;">
+    <strong>Disclaimer:</strong> This proposal and MVP prototype for NESFIC 2026 (NESFIC-D-49) use synthetic Assam land record fixtures and are not connected to live Government of Assam production databases. &copy; 2026 Flugelsoft Labs. Lead Applicant: Kalyanjit Hatibaruah. Live Prototype: https://bhumisync-assam.pages.dev/
+  </p>
+</body>
+</html>
